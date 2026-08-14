@@ -1,0 +1,95 @@
+{
+  "theme_and_context": {
+    "app_type": "Enterprise Dashboard / LIMS (Phase 1 Prototype)",
+    "industry": "Metrology and Calibration Laboratory",
+    "core_vibe": "Professional, Modern, Technical, Elegant, Clean, Empresarial, Minimalista. Communicates precision, engineering, quality, trust, and traceability.",
+    "theme_preference": "Light theme default, optional Dark mode via standard toggle.",
+    "language": "Bilingual Spanish/English UI (language toggle required)."
+  },
+  "typography": {
+    "headings": {
+      "font_family": "IBM Plex Sans",
+      "weights": ["600", "700"],
+      "usage": "Used for all dashboard titles, card headers, and module headers. Conveys technical precision and engineering rigor."
+    },
+    "body": {
+      "font_family": "Manrope",
+      "weights": ["400", "500", "600"],
+      "usage": "Highly legible geometric sans for dense data tables, forms, and general UI text."
+    },
+    "overlines_and_badges": {
+      "styling": "Uppercase, text-xs, tracking-wider (tracking-[0.05em] to tracking-[0.1em])",
+      "usage": "Status badges, small column headers, step indicators."
+    },
+    "rules": [
+      "Never use default 'Inter' for headings. Keep it distinct with IBM Plex Sans.",
+      "Headlines (Size > 32px) MUST use tracking-tight."
+    ]
+  },
+  "colors": {
+    "primary": {
+      "name": "Navy Blue (Corporate)",
+      "light": "#0F172A",
+      "dark": "#E2E8F0",
+      "tailwind": "slate-900"
+    },
+    "secondary": {
+      "name": "Light Blue (Corporate)",
+      "light": "#0284C7",
+      "dark": "#38BDF8",
+      "tailwind": "sky-600 / sky-400"
+    },
+    "surface": {
+      "light_background": "#F8FAFC",
+      "light_card": "#FFFFFF",
+      "dark_background": "#020617",
+      "dark_card": "#0F172A"
+    },
+    "status": {
+      "blue_in_process": "bg-blue-100 text-blue-800 border-blue-200",
+      "green_approved": "bg-emerald-100 text-emerald-800 border-emerald-200",
+      "yellow_pending": "bg-amber-100 text-amber-800 border-amber-200",
+      "red_rejected": "bg-rose-100 text-rose-800 border-rose-200",
+      "gray_draft": "bg-slate-100 text-slate-800 border-slate-200"
+    }
+  },
+  "components": {
+    "cards_and_surfaces": "Flat solid backgrounds with crisp 1px borders (border-slate-200 in light, border-slate-800 in dark). Minimal shadows (shadow-sm only) to preserve the technical/engineering feel. Max border-radius: rounded-lg (8px).",
+    "buttons": "Standard Shadcn UI buttons. Primary buttons use Corporate Navy (bg-slate-900 text-white) or Secondary Light Blue. Add slight transform on hover (-translate-y-[1px]).",
+    "sidebar": "Collapsible, categorized into logical groups (Operación, Laboratorio, Administración, Sistema). Active states should have a subtle background and a left border highlight in Light Blue.",
+    "tables": "Dense layout suitable for enterprise data. Hover states on rows. Sticky headers for long lists. Include pagination and global search.",
+    "tabs_and_wizards": "Use clear steps. 5-step wizard for Work Orders should have horizontal line connectors and clear active/completed states.",
+    "modals_drawers": "Use slide-out drawers (Sheet) for audit logs to preserve context. Use Modals (Dialog) for explicit actions (Send to Review, Rejection reasons)."
+  },
+  "grids_and_layouts": {
+    "dashboard_grid": "High-density Grid (Mode B). grid-cols-1 md:grid-cols-2 lg:grid-cols-4. Gap-4 to Gap-6.",
+    "split_review_screen": "Flagship screen: CSS Grid with 2 main columns (lg:grid-cols-12). Left side (col-span-4 or 5) for structured data and approval controls. Right side (col-span-8 or 7) for PDF viewer placeholder. Use h-[calc(100vh-theme(spacing.16))] to maximize screen real estate.",
+    "spacing_rules": "Use p-4 or p-6 for card internals. Ensure breathing room, but maintain enterprise density."
+  },
+  "motion": {
+    "hover_states": "All interactive elements must change on hover. Subdued transitions (transition-colors duration-200).",
+    "page_transitions": "Use Framer Motion for soft fade-ins on route changes or tab switching.",
+    "lists": "Staggered entrance animations for instrument cards or certificate lists."
+  },
+  "media_and_icons": {
+    "icons_library": "lucide-react (Matches the technical and clean aesthetic perfectly).",
+    "images": {
+      "logo": "https://customer-assets-agu9un31.emergentagent.net/job_metrologia-lab-ui/artifacts/rv6f4lg3_logo%20qlm.png",
+      "login_background": "https://images.unsplash.com/photo-1781330175070-6ec7e25f57aa?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NjV8MHwxfHNlYXJjaHwxfHxwcmVjaXNpb24lMjBsYWJvcmF0b3J5JTIwbW9kZXJufGVufDB8fHx8MTc4NjczMTUxOXww&ixlib=rb-4.1.0&q=85",
+      "user_avatar_1": "https://images.unsplash.com/photo-1560250097-0b93528c311a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzNDR8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBoZWFkc2hvdHxlbnwwfHx8fDE3ODY3MzE1MTl8MA&ixlib=rb-4.1.0&q=85",
+      "user_avatar_2": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzNDR8MHwxfHNlYXJjaHwzfHxwcm9mZXNzaW9uYWwlMjBoZWFkc2hvdHxlbnwwfHx8fDE3ODY3MzE1MTl8MA&ixlib=rb-4.1.0&q=85"
+    }
+  },
+  "universal_guidelines_for_main_agent": [
+    "CRITICAL: The codebase uses .js/.jsx files. DO NOT output or expect .tsx files for Shadcn/React components.",
+    "You MUST use HTML and standard Tailwind classes for custom layouts instead of over-relying on restrictive pre-built container components, unless using Shadcn UI primitives.",
+    "DO NOT apply `transition: all` globally. Apply transitions to specific properties like `transition-colors` or `transition-transform`.",
+    "All interactive elements (buttons, inputs, dropdowns) MUST have `data-testid` attributes (e.g., `data-testid=\"login-submit-button\"`).",
+    "The split review screen (Data on left, PDF on right) is the flagship feature and MUST be highly polished, visually separated, and use `h-full` to maximize viewport usage.",
+    "Use mock data explicitly mentioned in the prompt (RF/calibration instruments: Spectrum Analyzer, Signal Generator; brands: Keysight, Rohde & Schwarz, Fluke, Tektronix).",
+    "Format variables strictly: Certificates MUST follow QLM-CC-XXXX-2026, Orders MUST follow QLM-OT-2026-XXXX.",
+    "Implement a robust mock role switcher in the UI (simulated login or header dropdown) to toggle between: Técnico de Laboratorio, Jefe de Laboratorio, Finanzas, Administrador. The UI should physically change based on the selected role.",
+    "Never use purely transparent backgrounds on overlays/dropdowns; always use solid colors or glassmorphism (backdrop-blur + bg-white/90).",
+    "Use recharts for the required charts: services per month, orders by state, workload per technician, monthly billing, aging."
+  ]
+}
