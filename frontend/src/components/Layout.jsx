@@ -227,8 +227,7 @@ export default function Layout() {
       )}
       <div className="flex-1 min-w-0 flex flex-col">
         <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center gap-3 px-4 sticky top-0 z-40" data-testid="header">
-          <button data-testid="sidebar-toggle" className="btn-ghost lg:hidden" onClick={() => setMobileOpen(true)}><Menu size={18} /></button>
-          <button data-testid="sidebar-collapse" className="btn-ghost hidden lg:inline-flex" onClick={() => setCollapsed(!collapsed)}><Menu size={18} /></button>
+          <button data-testid="sidebar-toggle" className="btn-ghost" onClick={() => (window.innerWidth >= 1024 ? setCollapsed(!collapsed) : setMobileOpen(true))}><Menu size={18} /></button>
           <GlobalSearch />
           <div className="flex-1" />
           <NotifBell />
