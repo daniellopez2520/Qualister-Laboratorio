@@ -22,6 +22,7 @@ export function AppProvider({ children }) {
   const [payments, setPayments] = useState(dataService.getPayments);
   const [usersList, setUsersList] = useState(dataService.getUsers);
   const [notifs, setNotifs] = useState(dataService.getNotifications);
+  const [priceList, setPriceList] = useState(dataService.getPriceList);
 
   const standards = dataService.getStandards();
   const procedures = dataService.getProcedures();
@@ -30,7 +31,6 @@ export function AppProvider({ children }) {
   const auditLog = dataService.getAuditLog();
   const nonconformities = dataService.getNonconformities();
   const competencies = dataService.getCompetencies();
-  const priceList = dataService.getPriceList();
   const charts = dataService.getCharts();
   const settings = dataService.getSettings();
 
@@ -70,6 +70,14 @@ export function AppProvider({ children }) {
     setClients((prev) => [{ id: `CL-${String(prev.length + 1).padStart(3, "0")}`, activeOrders: 0, balance: 0, status: "activo", contacts: [], ...c }, ...prev]);
   }, []);
 
+  const deleteClient = useCallback((id) => {
+    setClients((prev) => prev.filter((c) => c.id !== id));
+  }, []);
+
+  const updatePrice = useCallback((code, price) => {
+    setPriceList((prev) => prev.map((p) => (p.code === code ? { ...p, price: Number(price) } : p)));
+  }, []);
+
   const addOrder = useCallback((o) => {
     const id = `QLM-OT-2026-0${155 + Math.floor(Math.random() * 40)}`;
     setOrders((prev) => [{ id, status: "recibida", ...o }, ...prev]);
@@ -90,7 +98,7 @@ export function AppProvider({ children }) {
     role, setRole, lang, setLang, dark, toggleDark, t,
     clients, orders, instruments, certificates, invoices, payments, usersList, notifs,
     standards, procedures, quotes, expenses, auditLog, nonconformities, competencies, priceList, charts, settings,
-    updateCertStatus, registerPayment, addClient, addOrder, addInstrument, addUser, dismissNotif,
+    updateCertStatus, registerPayment, addClient, deleteClient, updatePrice, addOrder, addInstrument, addUser, dismissNotif,
   };
   return <AppCtx.Provider value={value}>{children}</AppCtx.Provider>;
 }

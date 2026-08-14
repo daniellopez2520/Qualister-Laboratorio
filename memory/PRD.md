@@ -37,6 +37,11 @@ Build PHASE 1 of a professional internal web application for "Qualister Laborato
 - P1: Real audit trail, notifications engine, server-side permissions, invoice/quote PDF generation
 - P2: Email alerts, fiscal service integrations, report exports
 
+## Update (2026-06-14, session 2) — Client & price list permissions (tested via screenshot automation)
+- Tarifario (Finanzas > Tarifario): inline price editing (pencil → input → save) via `updatePrice` in AppContext. Only finanzas/admin reach this module (existing route guard).
+- Clients: create/edit/delete restricted to admin + finanzas (`CAN_MANAGE_CLIENTS` in Clients.jsx). Técnico/Jefe keep read-only access (view, Nueva OT, historial). Added delete with confirmation modal (`deleteClient`). /clientes/nuevo shows AccessDenied for unauthorized roles.
+
+
 ## Notes for future agents
 - DO NOT start real backend until user explicitly approves the design (user instruction).
 - All mutations are in-memory (AppContext); reload resets data (role persists via sessionStorage).

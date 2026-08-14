@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Plus, Download, Eye, FileText, ArrowRightLeft, Wallet } from "lucide-react";
+import { Plus, Download, Eye, FileText, ArrowRightLeft, Wallet, Pencil, Check, X } from "lucide-react";
 import { BarChart, Bar, Cell, XAxis, YAxis, Tooltip, Legend } from "recharts";
 import { useApp } from "../context/AppContext";
 import { DataTable, StatusBadge, PageHeader, Tabs, KpiCard, Field, Modal, InfoRow } from "../components/ui";
@@ -8,6 +8,35 @@ import { ChartCard } from "./Dashboard";
 import { money, STATUS_META } from "../i18n";
 
 const tooltipStyle = { fontSize: 12, borderRadius: 8, border: "1px solid #E2E8F0" };
+
+function PriceRow({ p, es, t, updatePrice }) {
+  const [editing, setEditing] = useState(false);
+  const [val, setVal] = useState(p.price);
+  const save = () => { updatePrice(p.code, val); setEditing(false); };
+  return (
+    <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors duration-150">
+      <td className="table-td font-semibold">{p.code}</td>
+      <td className="table-td">{p.service}</td>
+      <td className="table-td">{p.magnitude}</td>
+      <td className="table-td font-semibold">
+        {editing ? (
+          <input data-testid={`price-input-${p.code}`} type="number" className="input w-28 py-1" autoFocus value={val}
+            onChange={(e) => setVal(e.target.value)} onKeyDown={(e) => e.key === "Enter" && save()} />
+        ) : money(p.price)}
+      </td>
+      <td className="table-td">
+        {editing ? (
+          <div className="flex gap-1">
+            <button data-testid={`price-save-${p.code}`} className="btn-primary text-xs px-2.5 py-1" onClick={save}><Check size={13} /> {t("guardar")}</button>
+            <button className="btn-ghost text-xs" onClick={() => { setVal(p.price); setEditing(false); }}><X size={13} /></button>
+          </div>
+        ) : (
+          <button data-testid={`price-edit-${p.code}`} className="btn-ghost text-xs" onClick={() => { setVal(p.price); setEditing(true); }}><Pencil size={13} /> {t("editar")}</button>
+        )}
+      </td>
+    </tr>
+  );
+}
 
 function QuoteEditor({ quote, onClose, es, t, clients }) {
   const [items, setItems] = useState(quote.items.map((i) => ({ ...i })));
@@ -59,7 +88,7 @@ function QuoteEditor({ quote, onClose, es, t, clients }) {
 }
 
 export default function Finance() {
-  const { t, lang, invoices, quotes, payments, expenses, clients, charts, priceList, registerPayment } = useApp();
+  const { t, lang, invoices, quotes, payments, expenses, clients, charts, priceList, registerPayment, updatePrice } = useApp();
   const es = lang === "es";
   const [params, setParams] = useSearchParams();
   const tab = params.get("tab") || "resumen";
@@ -137,14 +166,10 @@ export default function Finance() {
       {tab === "tarifario" && (
         <DataTable
           testId="pricelist-table"
-          columns={[es ? "Código" : "Code", es ? "Servicio" : "Service", t("magnitud"), es ? "Precio" : "Price"]}
+          columns={[es ? "Código" : "Code", es ? "Servicio" : "Service", t("magnitud"), es ? "Precio" : "Price", t("acciones")]}
           rows={priceList}
           searchKeys={["code", "service"]}
-          renderRow={(p) => (
-            <tr key={p.code} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
-              <td className="table-td font-semibold">{p.code}</td><td className="table-td">{p.service}</td><td className="table-td">{p.magnitude}</td><td className="table-td font-semibold">{money(p.price)}</td>
-            </tr>
-          )}
+          renderRow={(p) => <PriceRow key={p.code} p={p} es={es} t={t} updatePrice={updatePrice} />}
         />
       )}
 

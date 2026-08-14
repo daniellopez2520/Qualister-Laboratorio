@@ -2,19 +2,23 @@ import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Plus, Eye, Pencil, ClipboardPlus, FileText, History, MoreHorizontal, Trash2 } from "lucide-react";
 import { useApp } from "../context/AppContext";
-import { DataTable, StatusBadge, PageHeader, Tabs, KpiCard, InfoRow, Field, EmptyState, Modal } from "../components/ui";
+import { DataTable, StatusBadge, PageHeader, Tabs, KpiCard, InfoRow, Field, EmptyState, Modal, AccessDenied } from "../components/ui";
 import { money } from "../i18n";
 
+const CAN_MANAGE_CLIENTS = ["admin", "finanzas"];
+
 export function ClientsList() {
-  const { t, lang, clients } = useApp();
+  const { t, lang, clients, role, deleteClient } = useApp();
   const nav = useNavigate();
   const es = lang === "es";
   const [menuFor, setMenuFor] = useState(null);
+  const [toDelete, setToDelete] = useState(null);
+  const canManage = CAN_MANAGE_CLIENTS.includes(role);
 
   return (
     <>
       <PageHeader title={t("clientes")} crumbs={[{ label: t("dashboard"), to: "/" }, { label: t("clientes") }]}
-        actions={<button data-testid="new-client-button" className="btn-primary" onClick={() => nav("/clientes/nuevo")}><Plus size={15} /> {es ? "Nuevo cliente" : "New client"}</button>} />
+        actions={canManage && <button data-testid="new-client-button" className="btn-primary" onClick={() => nav("/clientes/nuevo")}><Plus size={15} /> {es ? "Nuevo cliente" : "New client"}</button>} />
       <DataTable
         testId="clients-table"
         columns={[t("cliente"), es ? "Razón social" : "Legal name", "RFC", es ? "Ciudad" : "City", es ? "Contacto" : "Contact", es ? "Órdenes activas" : "Active orders", t("saldo"), t("estado"), t("acciones")]}
@@ -38,25 +42,44 @@ export function ClientsList() {
               </div>
               {menuFor === c.id && (
                 <div className="absolute right-4 top-10 card shadow-lg z-20 py-1 w-44 text-left">
-                  {[[Pencil, t("editar"), `/clientes/${c.id}`], [ClipboardPlus, es ? "Nueva OT" : "New WO", "/ordenes/nueva"], [FileText, es ? "Nueva cotización" : "New quote", "/finanzas?tab=cotizaciones"], [History, t("historial"), `/clientes/${c.id}`]].map(([I, l, to], i) => (
+                  {[...(canManage ? [[Pencil, t("editar"), `/clientes/${c.id}`]] : []), [ClipboardPlus, es ? "Nueva OT" : "New WO", "/ordenes/nueva"], [FileText, es ? "Nueva cotización" : "New quote", "/finanzas?tab=cotizaciones"], [History, t("historial"), `/clientes/${c.id}`]].map(([I, l, to], i) => (
                     <button key={i} className="w-full text-left px-3 py-1.5 text-sm flex items-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-800" onClick={() => { setMenuFor(null); nav(to); }}><I size={13} /> {l}</button>
                   ))}
+                  {canManage && (
+                    <button data-testid={`delete-client-${c.id}`} className="w-full text-left px-3 py-1.5 text-sm flex items-center gap-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 border-t border-slate-100 dark:border-slate-800 mt-1 pt-1.5" onClick={() => { setMenuFor(null); setToDelete(c); }}>
+                      <Trash2 size={13} /> {es ? "Eliminar" : "Delete"}
+                    </button>
+                  )}
                 </div>
               )}
             </td>
           </tr>
         )}
       />
+      <Modal open={!!toDelete} onClose={() => setToDelete(null)} title={es ? "Eliminar cliente" : "Delete client"}>
+        {toDelete && (
+          <div data-testid="delete-client-modal">
+            <p className="text-sm">{es ? "¿Seguro que deseas eliminar el cliente" : "Are you sure you want to delete the client"} <b>{toDelete.commercial}</b>? {es ? "Esta acción no se puede deshacer." : "This action cannot be undone."}</p>
+            <div className="flex justify-end gap-2 mt-5">
+              <button className="btn-secondary" onClick={() => setToDelete(null)}>{t("cancelar")}</button>
+              <button data-testid="confirm-delete-client" className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-rose-600 hover:bg-rose-500 text-white font-semibold text-sm transition-colors duration-200" onClick={() => { deleteClient(toDelete.id); setToDelete(null); }}>
+                <Trash2 size={14} /> {es ? "Eliminar" : "Delete"}
+              </button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </>
   );
 }
 
 export function ClientDetail() {
   const { id } = useParams();
-  const { t, lang, clients, orders, instruments, certificates, invoices, quotes, payments } = useApp();
+  const { t, lang, clients, orders, instruments, certificates, invoices, quotes, payments, role } = useApp();
   const nav = useNavigate();
   const es = lang === "es";
   const [tab, setTab] = useState("resumen");
+  const canManage = CAN_MANAGE_CLIENTS.includes(role);
   const c = clients.find((x) => x.id === id);
   if (!c) return <EmptyState title={t("sin_resultados")} />;
 
@@ -91,7 +114,7 @@ export function ClientDetail() {
         crumbs={[{ label: t("clientes"), to: "/clientes" }, { label: c.commercial }]}
         actions={<>
           <button data-testid="client-new-order" className="btn-secondary" onClick={() => nav("/ordenes/nueva")}><ClipboardPlus size={15} /> {es ? "Nueva OT" : "New WO"}</button>
-          <button data-testid="client-edit" className="btn-primary"><Pencil size={15} /> {t("editar")}</button>
+          {canManage && <button data-testid="client-edit" className="btn-primary"><Pencil size={15} /> {t("editar")}</button>}
         </>} />
       <Tabs tabs={tabs} active={tab} onChange={setTab} />
       <div className="mt-4 fade-up">
@@ -163,7 +186,7 @@ export function ClientDetail() {
 }
 
 export function NewClient() {
-  const { t, lang, addClient } = useApp();
+  const { t, lang, addClient, role } = useApp();
   const nav = useNavigate();
   const es = lang === "es";
   const [form, setForm] = useState({ name: "", commercial: "", rfc: "", phone: "", email: "", web: "", street: "", city: "", state: "", country: "México", zip: "", paymentTerms: "Contado", creditDays: 0, currency: "MXN", notes: "" });
@@ -171,6 +194,8 @@ export function NewClient() {
   const [saved, setSaved] = useState(false);
   const set = (k) => (e) => setForm((p) => ({ ...p, [k]: e.target.value }));
   const setC = (i, k) => (e) => setContacts((p) => p.map((c, j) => (j === i ? { ...c, [k]: e.target.value } : c)));
+
+  if (!CAN_MANAGE_CLIENTS.includes(role)) return <AccessDenied />;
 
   const Section = ({ title, children }) => (
     <div className="card p-5 mb-4"><p className="font-heading font-semibold mb-4">{title}</p><div className="grid md:grid-cols-3 gap-4">{children}</div></div>
